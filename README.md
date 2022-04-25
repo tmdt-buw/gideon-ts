@@ -1,5 +1,7 @@
 # Gideon-TS: Efficient Exploration and Labeling of Multivariate Industrial Sensor Data
 
+![alt text](https://github.com/tmdt-buw/gideon-ts/blob/master/img/preview.png)
+
 Gideon TS is a general purpose semi-automatic labeling tool, which is tailored to the needs of industrial sensor data. 
 The tool supports datasets that are available in a wide range of time series forms and contain an arbitrary number of label classes. 
 It is also suitable for visualizing and interactively labeling large amounts of data by storing sensor data in a time series database and, based on the size of the retrieved data, sampling and aggregating it if necessary. We also develop a support system to obtain label suggestions and thus to explore and label even large amounts of data in a short time. 
