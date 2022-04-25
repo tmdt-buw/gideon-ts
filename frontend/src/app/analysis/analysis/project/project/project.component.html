@@ -1,0 +1,24 @@
+<div class="project" fxLayout="column">
+  <div fxFlex="nogrow" class="main-toolbar">
+    <h5 nz-typography>{{project.name}}</h5>
+  </div>
+
+  <div class="tree-list" cdkDropList #dataList="cdkDropList" [cdkDropListSortingDisabled]="true">
+    <nz-tree-virtual-scroll-view class="virtual-scroll-tree" [nzTreeControl]="treeControl" [nzDataSource]="treeDataSource" nzBlockNode [style.height]="getHeight()">
+      <nz-tree-node *nzTreeNodeDef="let node" nzTreeNodePadding>
+        <nz-tree-node-toggle nzTreeNodeNoopToggle>
+          <i nz-icon nzType="file" nzTheme="outline"></i>
+        </nz-tree-node-toggle>
+        <span fxLayout="row" class="file-name" fxLayoutAlign="space-between center" cdkDrag [cdkDragData]="node.key" (cdkDragStarted)="dragging.next(true)" (cdkDragEnded)="dragging.next(false)">{{ node.name }}</span>
+      </nz-tree-node>
+
+      <nz-tree-node *nzTreeNodeDef="let node; when: isSample" nzTreeNodePadding>
+        <nz-tree-node-toggle>
+          <i nz-icon nzType="caret-down" nzTreeNodeToggleRotateIcon></i>
+        </nz-tree-node-toggle>
+        <span cdkDrag [cdkDragData]="node.key" (cdkDragStarted)="dragging.next(true)" (cdkDragEnded)="dragging.next(false)" class="folder-name" [ngClass]="{'hasError': node.hasError}">{{ node.name }}</span>
+      </nz-tree-node>
+    </nz-tree-virtual-scroll-view>
+  </div>
+</div>
+

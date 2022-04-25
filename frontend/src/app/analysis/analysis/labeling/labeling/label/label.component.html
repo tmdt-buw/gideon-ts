@@ -1,0 +1,17 @@
+<div *ngIf="label" class="label" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px" [nzTooltipTitle]="tooltipTpl" [nzTooltipTrigger]="disableTooltip ? null : 'hover'" nzTooltipPlacement="left" nz-tooltip>
+  <nz-badge [nzCount]="number" nzStandalone [nzStyle]="{ backgroundColor: label.labelClass.color || defaultColor }"></nz-badge>
+  <span>{{ label.sample }} | Sensors: {{ label.dimensions.join(", ") }}</span>
+</div>
+
+<ng-template #tooltipTpl>
+  <div fxLayout="row" fxLayoutGap="5px">
+    <div fxLayout="column">
+      <span>start:</span>
+      <span>end:</span>
+    </div>
+    <div fxLayout="column">
+      <span>{{ formatDate(label.start) }}</span>
+      <span>{{ formatDate(label.end) }}</span>
+    </div>
+  </div>
+</ng-template>

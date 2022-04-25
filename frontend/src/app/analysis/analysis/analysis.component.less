@@ -1,0 +1,71 @@
+:host {
+
+  .layout {
+    overflow: hidden;
+  }
+
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    right: 0;
+  }
+
+  ::ng-deep .cdk-drag-placeholder {
+    display: none;
+  }
+
+  .chart-area {
+    overflow-x: hidden;
+  }
+
+  .chart-overview {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    z-index: 1;
+  }
+
+  .chart-drop-zone-container {
+    position: relative;
+
+    .chart-drop-zone {
+      position: absolute;
+      height: 50px;
+      width: 100%;
+      z-index: 100;
+      bottom: -25px;
+      background: white;
+      opacity: 0.7;
+      pointer-events: none;
+      visibility: hidden;
+      border: 1px dashed rgba(120, 120, 120, 0.5);
+    }
+
+    .chart-drop-zone-dragged {
+      pointer-events: all;
+      visibility: visible;
+    }
+
+    ::ng-deep .cdk-drop-list-dragging {
+      background: rgba(204, 204, 204, 0.5) !important;
+    }
+  }
+
+  .project-sider {
+    overflow: hidden;
+  }
+
+  .labeling-sider {
+
+  }
+
+  .chart-item {
+    height: 250px;
+    padding: 0 5px;
+    width: 100%;
+  }
+
+  .footer {
+    padding: 0 10px;
+  }
+}

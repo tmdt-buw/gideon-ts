@@ -1,0 +1,15 @@
+version: "3.5"
+
+services:
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=password
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"

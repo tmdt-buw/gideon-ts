@@ -1,0 +1,7 @@
+.idea
+node_modules
+.dockerignore
+.gitlab-ci.yml
+openapitools.json
+Dockerfile
+README.md

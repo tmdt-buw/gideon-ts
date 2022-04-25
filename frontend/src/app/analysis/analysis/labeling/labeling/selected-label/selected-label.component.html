@@ -1,0 +1,31 @@
+<div fxLayout="column" fxLayoutGap="5px">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <app-label [number]="number" [label]="label" [isSelected]="isSelected" [disableTooltip]="true"></app-label>
+    <button nz-button nzType="default" nzDanger (click)="labelDelete.emit()"><i nz-icon nzType="delete"></i></button>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="5px">
+    <span fxFlex="nogrow">Label:</span>
+    <nz-select fxFlex [(ngModel)]="label.label_class" [nzCustomTemplate]="defaultTemplate" (ngModelChange)="updateLabel()">
+      <nz-option *ngFor="let labelClass of labelClasses" [nzValue]="labelClass.id" [nzLabel]="labelClass.name"></nz-option>
+    </nz-select>
+  </div>
+
+  <div fxLayout="row" fxLayoutGap="5px">
+    <div fxLayout="column">
+      <span>start:</span>
+      <span>end:</span>
+    </div>
+    <div fxLayout="column">
+      <span>{{ formatDate(label.start) }}</span>
+      <span>{{ formatDate(label.end) }}</span>
+    </div>
+  </div>
+
+  <ng-template #defaultTemplate let-selected>
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="5px">
+      <div class="color-indicator" [ngStyle]="{'background': classById(selected.nzValue).color}"></div>
+      <span>{{ selected.nzLabel }}</span>
+    </div>
+  </ng-template>
+</div>

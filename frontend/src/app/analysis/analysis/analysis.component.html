@@ -1,0 +1,78 @@
+<div fxLayout="column" fxFill class="layout">
+
+  <div *ngIf="project" fxFlex cdkDropListGroup fxLayout="row">
+
+    <div fxFlex="0 1 200px" class="project-sider" [@collapsed]="isProjectCollapsed">
+      <app-project [dragging]="$dragging" [project]="project" [prediction]="prediction" (addAllSamples)="addAllCharts()"></app-project>
+    </div>
+
+    <div fxFlex="1 0 calc(100% - 500px)" class="chart-area" fxLayout="column" fxLayoutGap="5px">
+
+      <div fxFlex="0 0 auto" class="main-toolbar" fxLayout="row" fxLayoutAlign="space-between">
+        <div fxLayout="row" fxLayoutGap="5px">
+          <button nz-button nzType="text" [nzSize]="'small'" (click)="isProjectCollapsed = !isProjectCollapsed"><i nz-icon [nzType]="isProjectCollapsed ? 'menu-unfold' : 'menu-fold'"></i></button>
+          <button nz-button nzType="text" [nzSize]="'small'" [routerLink]="['/projects']"><i nz-icon nzType="arrow-left"></i></button>
+          <button nz-button nzType="text" [nzSize]="'small'" (click)="addAllCharts()"><i nz-icon nzType="appstore-add"></i>All charts</button>
+          <button nz-button nzType="text" [nzSize]="'small'" (click)="addAllChartsWithErrors()" [disabled]="!prediction.getValue()"><i nz-icon nzType="issues-close"></i>All errors</button>
+          <button nz-button nzType="text" [nzSize]="'small'" (click)="onRemoveAllCharts()"><i nz-icon nzType="switcher"></i>Remove charts</button>
+        </div>
+        <div fxLayout="row" fxLayoutGap="5px">
+          <button nz-button nzType="text" [nzSize]="'small'" (click)="isLabelsCollapsed = !isLabelsCollapsed"><i nz-icon [nzType]="isLabelsCollapsed ? 'menu-fold' : 'menu-unfold'"></i></button>
+        </div>
+      </div>
+
+      <div class="chart-item" fxFlex="0 0 auto">
+        <app-chart *ngIf="overviewChart" class="chart-overview"
+                   [project]="project"
+                   [chartData]="overviewChart"
+                   [isOverviewChart]="true"
+                   [labels]="labels"
+        ></app-chart>
+
+        <div class="chart-drop-zone-container">
+          <div class="chart-drop-zone" [ngClass]="{'chart-drop-zone-dragged': $dragging.getValue()}" fxLayoutAlign="center center" cdkDropList (cdkDropListDropped)="addChart(0, $event)">
+            <span>Add Chart</span>
+          </div>
+        </div>
+      </div>
+
+      <cdk-virtual-scroll-viewport fxFlex itemSize="250" orientation="vertical">
+
+        <div class="chart-drop-zone-container chart-item" *cdkVirtualFor="let chartData of chartData; templateCacheSize: 0; let index = index; trackBy: trackById">
+          <app-chart
+            [project]="project"
+            [chartData]="chartData"
+            [labelClasses]="labelClasses"
+            [selectedLabelClass]="selectedLabelClass"
+            [labels]="labels"
+            [hoveredLabel]="hoveredLabel"
+            [selectedLabel]="selectedLabel"
+            [prediction]="prediction"
+            (removeChart)="onRemoveChart(index)"
+          ></app-chart>
+          <div class="chart-drop-zone" [ngClass]="{'chart-drop-zone-dragged': $dragging.getValue()}" fxLayoutAlign="center center" cdkDropList (cdkDropListDropped)="addChart((index + 1), $event)">
+            <span>Add Chart</span>
+          </div>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+
+    <div fxFlex="0 1 300px" class="labeling-sider" [@collapsed]="isLabelsCollapsed">
+      <app-labeling
+        [project]="project"
+        [$selectedLabelClass]="selectedLabelClass"
+        [$labels]="labels"
+        [$labelClasses]="labelClasses"
+        [$hoveredLabel]="hoveredLabel"
+        [$selectedLabel]="selectedLabel"
+        [$prediction]="prediction"></app-labeling>
+    </div>
+  </div>
+
+  <div class="footer" fxFlex="40px" fxLayout="row" fxLayoutAlign="start center">
+    <span>GIDEON</span>
+    <nz-divider [nzType]="'vertical'"></nz-divider>
+    <span>{{version}}</span>
+  </div>
+
+</div>

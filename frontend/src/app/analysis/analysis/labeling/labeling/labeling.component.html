@@ -1,0 +1,204 @@
+<div fxFill fxLayout="column">
+
+  <div fxFlex="nogrow" class="main-toolbar">
+    <h5 nz-typography>Labels</h5>
+  </div>
+
+  <div fxFlex class="labeling-content" fxLayout="column" fxLayoutGap="15px">
+    <!-- Label types card -->
+    <nz-card [nzTitle]="types" [nzExtra]="extraTemplate" class="label-class-card">
+      <ul nz-menu>
+        <li nz-menu-item fxLayout="row" fxLayoutGap="15px" fxLayoutAlign="start center"
+            *ngFor="let labelClass of labelClasses; let index = index; trackBy: trackById"
+            [value]="labelClass"
+            (click)="toggleLabelClass(labelClass)"
+            [ngStyle]="{'background': isLabelClassSelected(labelClass) ? labelClass.color : 'transparent',
+                      'color': isLabelClassSelected(labelClass) ? defaultLabelColor : 'inherit',
+                      'border-left': !isLabelClassSelected(labelClass) ? '5px solid ' + labelClass.color : null}">
+          <nz-tag *ngIf="index < 9">{{index + 1}}</nz-tag>
+          <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="start center">
+            <i *ngIf="labelClass.severity === 'warning'" nz-icon nzType="exclamation-circle"></i>
+            <i *ngIf="labelClass.severity === 'error'" nz-icon nzType="close-circle"></i>
+            <span>{{ labelClass.name }}</span>
+          </div>
+        </li>
+      </ul>
+    </nz-card>
+
+    <ng-template #types>
+      <span class="card-header">Label Editor</span>
+    </ng-template>
+
+    <ng-template #extraTemplate>
+      <button nz-button nzType="default" (click)="openAddLabelDialog()">Add Label</button>
+    </ng-template>
+
+    <!-- Overview of assigned labels -->
+    <nz-card [nzTitle]="title" [nzExtra]="extraButton" class="label-card" #labelList>
+
+      <ng-template #title>
+        <span class="card-header">Labels</span>
+      </ng-template>
+
+      <ng-template #extraButton>
+        <a href="/api/labels/export?project={{project.id}}" download="labels.json">Download</a>
+      </ng-template>
+
+      <!-- Show selected label -->
+      <div class="selected-label">
+        <app-selected-label *ngIf="selectedLabel"
+                            [number]="indexOfLabel(selectedLabel)"
+                            [label]="selectedLabel"
+                            [$labelClasses]="$labelClasses"
+                            (labelChanged)="onLabelChanged($event)"
+                            (labelDelete)="deleteLabel(selectedLabel)">
+        </app-selected-label>
+        <span *ngIf="!selectedLabel">No label selected</span>
+      </div>
+
+      <!-- divider and sort menu -->
+
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <div fxFlex>
+          <nz-divider [nzText]="'List (' + labels.length + ')'" nzOrientation="left"></nz-divider>
+        </div>
+        <button fxFlex="nogrow" nz-button nzType="text" nz-dropdown [nzDropdownMenu]="sortMenu"><i nz-icon nzType="sort-ascending"></i>Sort</button>
+      </div>
+
+      <nz-dropdown-menu #sortMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item *ngFor="let lblSort of labelSort | keyvalue: unsorted" [nzSelected]="lblSort.value === sort" (click)="sort = lblSort.value">{{lblSort.key}}</li>
+        </ul>
+      </nz-dropdown-menu>
+
+
+      <!-- List of all labels -->
+      <ng-container *ngIf="sort === labelSort.Time">
+        <nz-list nzSize="small">
+          <nz-list-item *ngFor="let label of labelsPage; let index = index; trackBy: trackById"
+                        (mouseenter)="hoverLabel(label)"
+                        (mouseleave)="unhoverLabel()"
+                        (click)="toggleLabel(label)"
+                        class="label-item"
+                        [ngClass]="{'label-hovered': isLabelHovered(label), 'label-selected': isLabelSelected(label)}">
+            <app-label [number]="indexOfLabel(label, index)" [label]="label"></app-label>
+          </nz-list-item>
+        </nz-list>
+        <nz-pagination [(nzPageIndex)]="labelPageIndex" [nzPageSize]="labelPageSize" [nzTotal]="labels.length" [nzSize]="'small'"></nz-pagination>
+      </ng-container>
+
+      <!-- Tree by label -->
+      <ng-container *ngIf="sort === labelSort.Label || sort === labelSort.Sample">
+        <div fxLayout="row" fxLayoutGap="5px">
+          <button nz-button nzType="text" (click)="expandAllNodes()">Expand all</button>
+          <button nz-button nzType="text" (click)="collapseAllNodes()">Collapse all</button>
+        </div>
+
+        <nz-tree-virtual-scroll-view class="virtual-scroll-tree" #labelTree [nzTreeControl]="sort === labelSort.Label ? labelTreeControl : sampleTreeControl"
+                                     [nzDataSource]="sort === labelSort.Label ? labelTreeDataSource : sampleTreeDataSource">
+          <nz-tree-node *nzTreeNodeDef="let node; when: isLabelClassNode" nzTreeNodePadding>
+            <nz-tree-node-toggle>
+              <i nz-icon nzType="caret-down" nzTreeNodeToggleRotateIcon></i>
+            </nz-tree-node-toggle>
+            <nz-tree-node-option>
+              <nz-tag [nzColor]="node.labelClass.color">{{ node.name }}</nz-tag>
+            </nz-tree-node-option>
+          </nz-tree-node>
+
+          <nz-tree-node *nzTreeNodeDef="let node; when: isSampleNode" nzTreeNodePadding>
+            <nz-tree-node-toggle>
+              <i nz-icon nzType="caret-down" nzTreeNodeToggleRotateIcon></i>
+            </nz-tree-node-toggle>
+            <nz-tree-node-option class="label">
+              <div fxLayout="row" fxLayoutAlign="space-between center">
+                <span>{{ node.name }}</span>
+                <i nz-icon nzType="delete" (click)="deleteLabelsBySample($event, node)" [nzTheme]="'twotone'" [nzTwotoneColor]="'#ff4d4f'"></i>
+              </div>
+            </nz-tree-node-option>
+          </nz-tree-node>
+
+          <nz-tree-node *nzTreeNodeDef="let node; when: isLabelNode" nzTreeNodePadding>
+            <nz-tree-node-toggle nzTreeNodeNoopToggle></nz-tree-node-toggle>
+            <nz-tree-node-option>
+              <div (mouseenter)="hoverLabel(node.label[1])"
+                   (mouseleave)="unhoverLabel()"
+                   (click)="toggleLabel(node.label[1])"
+                   class="label-item"
+                   [ngClass]="{'label-hovered': isLabelHovered(node.label[1]), 'label-selected': isLabelSelected(node.label[1])}">
+                <app-label [number]="indexOfLabel(node.label[1], node.label[0])" [label]="node.label[1]"></app-label>
+              </div>
+            </nz-tree-node-option>
+          </nz-tree-node>
+        </nz-tree-virtual-scroll-view>
+      </ng-container>
+
+    </nz-card>
+
+    <!-- Auto -->
+    <nz-spin nzTip="Loading..." [nzSpinning]="isPredictionLoading">
+      <nz-card [nzTitle]="predictions">
+        <ul nz-menu>
+          <li nz-menu-item (click)="openPredictionDialog()">
+            Clustering
+          </li>
+        </ul>
+      </nz-card>
+    </nz-spin>
+
+    <ng-template #predictions>
+      <span class="card-header">Support Tools</span>
+    </ng-template>
+
+    <!-- Run prediction dialog -->
+    <nz-modal [(nzVisible)]="isPredictionDialogVisible" nzTitle="Run Label Prediction" [nzOkDisabled]="!predictionForm.valid" (nzOnOk)="runPrediction()" (nzOnCancel)="isPredictionDialogVisible = false">
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="predictionForm" fxLayout="column" fxLayoutGap="15px">
+          <nz-form-item fxLayout="row" fxLayoutGap="15px">
+            <nz-form-label nzRequired fxFlex="0 0 20">Algorithm</nz-form-label>
+            <nz-form-control fxFlex nzErrorTip="Please select an algorithm!">
+              <nz-select formControlName="algorithm">
+                <nz-option *ngFor="let algo of predictionAlgorithms | keyvalue: unsorted" [nzValue]="algo.value" [nzLabel]="algo.key"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item fxLayout="row" fxLayoutGap="15px">
+            <nz-form-label fxFlex="0 0 20" nzRequired>Window</nz-form-label>
+            <nz-form-control fxFlex nzErrorTip="Please input a window size!">
+              <nz-input-number formControlName="window" [nzMin]="1" [nzMax]="10000" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item fxLayout="row" fxLayoutGap="15px">
+            <nz-form-label fxFlex="0 0 20" nzRequired>eps</nz-form-label>
+            <nz-form-control fxFlex nzErrorTip="Please input an eps!">
+              <nz-input-number formControlName="eps" [nzMin]="0.01" [nzMax]="10000" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+    </nz-modal>
+
+    <!-- Create Label class dialog -->
+    <nz-modal [(nzVisible)]="isAddLabelClassModalVisible" nzTitle="Add Label Type" [nzOkDisabled]="!labelClassForm.valid" (nzOnOk)="createLabelClass()" (nzOnCancel)="isAddLabelClassModalVisible = false">
+      <ng-container *nzModalContent>
+        <div fxLayout="column" fxLayoutGap="15px">
+          <form nz-form [nzLayout]="'inline'" [formGroup]="labelClassForm">
+            <nz-form-item>
+              <nz-form-control nzErrorTip="Please input a name!">
+                <nz-input-group nzPrefixIcon="tag">
+                  <input formControlName="name" nz-input placeholder="Name of the label type"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-radio-group formControlName="severity">
+              <label *ngFor="let severity of severities | keyvalue: unsorted" nz-radio-button [nzValue]="severity.value">{{ severity.key }}</label>
+            </nz-radio-group>
+          </form>
+          <span *ngIf="error" nz-typography nzType="danger">{{ error }}</span>
+        </div>
+      </ng-container>
+    </nz-modal>
+  </div>
+</div>

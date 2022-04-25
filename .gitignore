@@ -1,0 +1,4 @@
+.idea
+backend/.vscode/launch.json
+envs
+node_modules

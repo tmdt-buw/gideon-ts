@@ -1,0 +1,47 @@
+@import "../node_modules/ng-zorro-antd/ng-zorro-antd.less";
+@layout-body-background: @component-background;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Raleway', sans-serif;
+
+  * {
+    outline: none;
+  }
+}
+
+.container {
+  padding: 15px 15px 0 15px !important;
+  margin: 0 auto !important;
+  min-width: 576px;
+  max-width: 100%;
+  width: 86%;
+}
+
+.main-toolbar {
+  height: 38px;
+  padding: 5px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+// Scrollbars only for Chrome
+::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background-color: #b5b4ba;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #b5b4ba;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: #737278;
+  transition: height ease-out 150ms;
+}

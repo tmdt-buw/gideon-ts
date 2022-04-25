@@ -1,0 +1,13 @@
+{
+  "/socket/*": {
+    "target": "ws://localhost:5000",
+    "ws": true,
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/api/*": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

@@ -1,0 +1,97 @@
+<nz-modal [(nzVisible)]="isCreateVisible" nzTitle="Create Project" (nzOnCancel)="close()" (nzOnOk)="createProject()" [nzOkDisabled]="loading" [nzCancelDisabled]="loading" [nzClosable]="!loading" [nzMaskClosable]="!loading">
+  <ng-container *nzModalContent>
+    <nz-form-item>
+      <nz-form-label nzRequired nzFor="name">Name</nz-form-label>
+      <nz-form-control nzErrorTip="Input a project name">
+        <input nz-input [formControl]="nameControl"/>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-upload
+      nzListType="picture"
+      [nzMultiple]="false"
+      [nzAccept]="['.ts', '.json']"
+      [(nzFileList)]="fileList"
+      [nzAction]="uploadUrl"
+      [nzShowButton]="fileList.length < 1"
+      (nzChange)="handleChange($event)">
+      <button nz-button>
+        <span><i nz-icon nzType="upload"></i> Upload</span>
+      </button>
+      <p class="ant-upload-hint">
+        Supports single *.ts or *.json files. <a href="https://www.sktime.org/en/latest/examples/loading_data.html#Representing-data-with-.ts-files" target="_blank" (click)="$event.stopPropagation()">About .ts format</a>
+      </p>
+    </nz-upload>
+  </ng-container>
+</nz-modal>
+
+
+<nz-layout fxFill>
+
+  <!-- Header -->
+  <nz-header class="header" fxLayout="row" fxLayoutGap="15px">
+    <span class="logo">
+      GIDEON
+    </span>
+  </nz-header>
+
+  <nz-content>
+    <nz-spin nzTip="Loading..." [nzSpinning]="loading">
+      <div class="container" fxLayout="column" fxLayoutGap="15px">
+        <div fxLayout="row" fxLayoutAlign="space-between center">
+          <h2 nz-typography>Projects</h2>
+          <button nz-button nzType="primary" (click)="isCreateVisible = true">
+            <i nz-icon nzType="plus"></i>Add project
+          </button>
+        </div>
+
+        <nz-list *ngIf="!error" nzSize="large">
+          <nz-list-item *ngFor="let project of projects" [routerLink]="isIntegrated(project) && !hasError(project) ? [analysisRoute, project.id] : null">
+            <div fxLayoutGap="15px">
+              <div class="projects" fxLayoutGap="15px" nz-typography nzType="secondary" [nzDisabled]="!isIntegrated(project)">
+                <i nz-icon nzType="folder" nzTheme="outline"></i>
+                <span>{{ project.name }} <span nz-typography [nzType]="hasError(project) ? 'danger' : 'secondary'">({{ project.dimensions! > 1 ? 'multivariate [' + project.dimensions + ' dimensions]' : 'univariate' }}
+                  | {{ project.samples }}
+                  samples)</span></span>
+              </div>
+
+              <div *ngIf="!isIntegrated(project)" fxFlex="170px">
+                <nz-progress [nzPercent]="getProgress(project)" [nzShowInfo]="false" nzSize="small" nzStatus="active"></nz-progress>
+              </div>
+            </div>
+
+            <ul nz-list-item-actions>
+              <nz-list-item-action>
+                <button nz-button nzType="text" nzShape="circle" nz-dropdown [nzDropdownMenu]="menu" (click)="$event.stopPropagation()">
+                  <i nz-icon nzType="more"></i>
+                </button>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item nzDanger (click)="deleteProject(project)">Delete <i nz-icon nzType="delete"></i></li>
+                  </ul>
+                </nz-dropdown-menu>
+              </nz-list-item-action>
+            </ul>
+          </nz-list-item>
+        </nz-list>
+
+        <div class="placeholder" fxLayoutAlign="center center">
+          <nz-empty *ngIf="projects.length < 1 && !error" nzNotFoundImage="simple" [nzNotFoundContent]="contentTpl"></nz-empty>
+          <ng-template #contentTpl>
+            <span>
+              No Projects
+            </span>
+          </ng-template>
+
+          <nz-alert *ngIf="error" nzType="error" nzMessage="Error" nzDescription="Could not fetch projects."></nz-alert>
+        </div>
+
+      </div>
+    </nz-spin>
+  </nz-content>
+
+  <nz-footer></nz-footer>
+
+</nz-layout>
+
+
