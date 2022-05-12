@@ -52,11 +52,8 @@ def predict(project_uuid: UUID, prediction: PredictionRequest, db: Session,
                 except IndexError:
                     end = first_sample['timestamps'][-1]
                 pred = PredictionWindow(start=start, end=end, labelClass=lbl_class)
-                # DAMIT DAS WAS AUSKOMMENTIERT IST KLAPPT, MUSS NOCH IRGENDWO DER DTW_Controller für das Projekt erstellt werden.
-                # label_pred = dtw_controller.DTW_Controller(project=project).classify_label_for_new_sample(window=pred,
-                #                                                                                            sample_id=
-                #                                                                                            sample["id"])
-                # pred.labelClass = label_pred
+                label_pred = dtw_controller.DTW_Controller(project=project).classify_label_for_new_sample(window=pred, sample_id=sample["id"])
+                pred.labelClass = label_pred
                 sample_pred.prediction.append(pred)
         runtime = time.time() - x
         print(f"Prediction Runtime {runtime}")
